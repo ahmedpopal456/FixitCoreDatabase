@@ -4,7 +4,7 @@ using Fixit.Storage.Adapters;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Fixit.Storage.Mediators.Internal
+namespace Fixit.Storage.Mediators.Cosmos.Internal
 {
   internal class CosmosDatabaseMediator : IDatabaseMediator
   {

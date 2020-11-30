@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
-using Fixit.Storage.Adapters.Internal;
+using Fixit.Storage.Adapters.Cosmos.Internal;
 using Fixit.Storage.Mediators;
-using Fixit.Storage.Mediators.Internal;
+using Fixit.Storage.Mediators.Cosmos.Internal;
 
 
 namespace Fixit.Storage

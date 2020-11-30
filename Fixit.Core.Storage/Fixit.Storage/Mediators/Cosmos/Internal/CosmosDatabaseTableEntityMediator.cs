@@ -10,7 +10,7 @@ using Fixit.Storage.DataContracts.Documents;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 
-namespace Fixit.Storage.Mediators.Internal
+namespace Fixit.Storage.Mediators.Cosmos.Internal
 {
   internal class CosmosDatabaseTableEntityMediator : IDatabaseTableEntityMediator
   {

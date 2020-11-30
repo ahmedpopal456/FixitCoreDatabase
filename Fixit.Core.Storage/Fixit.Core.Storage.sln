@@ -10,7 +10,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fixit.Storage", "Fixit.Stor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fixit.Storage.DataContracts", "Fixit.Storage.DataContracts\Fixit.Storage.DataContracts.csproj", "{DB3468FA-9A7B-48F2-BC65-6403D6F6809B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fixit.Storage.Demo", "Fixit.Storage.Demo\Fixit.Storage.Demo.csproj", "{CB602B1B-A69E-4BF7-8A66-B4D6BC51752F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fixit.Storage.Demo", "Fixit.Storage.Demo\Fixit.Storage.Demo.csproj", "{CB602B1B-A69E-4BF7-8A66-B4D6BC51752F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
