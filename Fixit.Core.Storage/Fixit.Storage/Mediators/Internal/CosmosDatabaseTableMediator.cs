@@ -5,16 +5,16 @@ using Fixit.Storage.Adapters;
 
 namespace Fixit.Storage.Mediators.Internal
 {
-  internal class CosmosDbTableMediator : IClientDbTableMediator
+  internal class CosmosDatabaseTableMediator : IDatabaseTableMediator
   {
-    private IClientDbTableAdapter _dbTableAdapter;
+    private IDatabaseTableAdapter _databaseTableAdapter;
 
-    public CosmosDbTableMediator(IClientDbTableAdapter dbTableAdapter)
+    public CosmosDatabaseTableMediator(IDatabaseTableAdapter databaseTableAdapter)
     {
-      _dbTableAdapter = dbTableAdapter;
+      _databaseTableAdapter = databaseTableAdapter;
     }
 
-    public async Task<IClientDbTableEntityMediator> CreateContainerAsync(string containerId, string partitionKeyPath, CancellationToken cancellationToken)
+    public async Task<IDatabaseTableEntityMediator> CreateContainerAsync(string containerId, string partitionKeyPath, CancellationToken cancellationToken)
     {
       if (string.IsNullOrWhiteSpace(containerId))
       {
@@ -25,17 +25,17 @@ namespace Fixit.Storage.Mediators.Internal
         throw new ArgumentNullException($"{nameof(CreateContainerAsync)} expects a valid value for {nameof(partitionKeyPath)}");
       }
 
-      return new CosmosDbTableEntityMediator(await _dbTableAdapter.CreateContainerIfNotExistsAsync(containerId, partitionKeyPath, cancellationToken));
+      return new CosmosDatabaseTableEntityMediator(await _databaseTableAdapter.CreateContainerIfNotExistsAsync(containerId, partitionKeyPath, cancellationToken));
     }
 
-    public IClientDbTableEntityMediator GetContainer(string containerId)
+    public IDatabaseTableEntityMediator GetContainer(string containerId)
     {
       if (string.IsNullOrWhiteSpace(containerId))
       {
         throw new ArgumentNullException($"{nameof(GetContainer)} expects a valid value for {nameof(containerId)}");
       }
 
-      return new CosmosDbTableEntityMediator(_dbTableAdapter.GetContainer(containerId));
+      return new CosmosDatabaseTableEntityMediator(_databaseTableAdapter.GetContainer(containerId));
     }
   }
 }

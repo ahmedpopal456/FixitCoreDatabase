@@ -9,7 +9,7 @@ using Fixit.Storage.DataContracts.Documents;
 
 namespace Fixit.Storage.Mediators
 {
-  public interface IClientDbTableEntityMediator
+  public interface IDatabaseTableEntityMediator
   {
     /// <summary>
     /// 
@@ -50,7 +50,7 @@ namespace Fixit.Storage.Mediators
     /// <param name="queryRequestOptions"></param>
     /// <param name="predicate"></param>
     /// <returns></returns>
-    Task<(DocumentCollectionDto<T> DocumentCollection, string ContinuationToken)> GetItemQueryableAsync<T>(string continuationToken, CancellationToken cancellationToken, QueryRequestOptions queryRequestOptions = default, Expression<Func<T, bool>> predicate = default) where T : DocumentBase;
+    Task<(DocumentCollectionDto<T> DocumentCollection, string ContinuationToken)> GetItemQueryableAsync<T>(string continuationToken, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate, QueryRequestOptions queryRequestOptions = default) where T : DocumentBase;
 
     /// <summary>
     /// 
@@ -61,7 +61,7 @@ namespace Fixit.Storage.Mediators
     /// <param name="cancellationToken"></param>
     /// <param name="predicate"></param>
     /// <returns></returns>
-    Task<PagedDocumentCollectionDto<T>> GetItemQueryableByPageAsync<T>(int pageNumber, QueryRequestOptions queryRequestOptions, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate = default) where T : DocumentBase;
+    Task<PagedDocumentCollectionDto<T>> GetItemQueryableByPageAsync<T>(int pageNumber, QueryRequestOptions queryRequestOptions, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate) where T : DocumentBase;
 
     /// <summary>
     /// 

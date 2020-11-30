@@ -1,24 +1,26 @@
-﻿using System.Threading;
+﻿using System;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace Fixit.Storage.Mediators
+namespace Fixit.Storage.Adapters
 {
-  public interface IClientDbTableMediator
+  public interface IDatabaseTableAdapter
   {
     /// <summary>
-    /// 
+    ///  
     /// </summary>
     /// <param name="containerId"></param>
     /// <param name="partitionKeyPath"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<IClientDbTableEntityMediator> CreateContainerAsync(string containerId, string partitionKeyPath, CancellationToken cancellationToken);
-    
+    Task<IDatabaseTableEntityAdapter> CreateContainerIfNotExistsAsync(string containerId, string partitionKeyPath, CancellationToken cancellationToken);
+
     /// <summary>
     /// 
     /// </summary>
     /// <param name="containerId"></param>
     /// <returns></returns>
-    IClientDbTableEntityMediator GetContainer(string containerId);
+    IDatabaseTableEntityAdapter GetContainer(string containerId);
   }
 }

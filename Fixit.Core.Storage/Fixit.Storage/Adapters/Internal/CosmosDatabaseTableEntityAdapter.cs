@@ -7,11 +7,11 @@ using Microsoft.Azure.Cosmos;
 
 namespace Fixit.Storage.Adapters.Internal
 {
-  internal class CosmosDbTableEntityAdapter : IClientDbTableEntityAdapter
+  internal class CosmosDatabaseTableEntityAdapter : IDatabaseTableEntityAdapter
   {
     private Container _container;
 
-    public CosmosDbTableEntityAdapter(Container container)
+    public CosmosDatabaseTableEntityAdapter(Container container)
     {
       _container = container;
     }

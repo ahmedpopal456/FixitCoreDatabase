@@ -12,14 +12,14 @@ using Microsoft.Azure.Cosmos.Linq;
 
 namespace Fixit.Storage.Mediators.Internal
 {
-  internal class CosmosDbTableEntityMediator : IClientDbTableEntityMediator
+  internal class CosmosDatabaseTableEntityMediator : IDatabaseTableEntityMediator
   {
-    private IClientDbTableEntityAdapter _dbTableEntityAdapter;
+    private IDatabaseTableEntityAdapter _databaseTableEntityAdapter;
     private const int _defaultPageSize = 20;
 
-    public CosmosDbTableEntityMediator(IClientDbTableEntityAdapter dbTableEntityAdapter)
+    public CosmosDatabaseTableEntityMediator(IDatabaseTableEntityAdapter databaseTableEntityAdapter)
     {
-      _dbTableEntityAdapter = dbTableEntityAdapter;
+      _databaseTableEntityAdapter = databaseTableEntityAdapter;
     }
 
     public async Task<CreateDocumentDto<T>> CreateItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase
@@ -36,7 +36,7 @@ namespace Fixit.Storage.Mediators.Internal
         item.id = Guid.NewGuid().ToString();
         item.EntityId = partitionKey;
 
-        resultCreateDocument.Document = await _dbTableEntityAdapter.CreateItemAsync(item, partitionKey, cancellationToken);
+        resultCreateDocument.Document = await _databaseTableEntityAdapter.CreateItemAsync(item, partitionKey, cancellationToken);
       }
       catch (Exception exception)
       {
@@ -61,7 +61,7 @@ namespace Fixit.Storage.Mediators.Internal
 
       try
       {
-        HttpStatusCode statusCode = await _dbTableEntityAdapter.DeleteItemAsync<T>(itemId, partitionKey, cancellationToken);
+        HttpStatusCode statusCode = await _databaseTableEntityAdapter.DeleteItemAsync<T>(itemId, partitionKey, cancellationToken);
 
         if (statusCode == HttpStatusCode.OK || statusCode == HttpStatusCode.NoContent)
         {
@@ -93,7 +93,7 @@ namespace Fixit.Storage.Mediators.Internal
 
       try
       {
-        document.Document = await _dbTableEntityAdapter.ReadItemAsync<T>(itemId, partitionKey, cancellationToken);
+        document.Document = await _databaseTableEntityAdapter.ReadItemAsync<T>(itemId, partitionKey, cancellationToken);
       }
       catch (Exception exception)
       {
@@ -104,7 +104,7 @@ namespace Fixit.Storage.Mediators.Internal
       return document;
     }
 
-    public async Task<(DocumentCollectionDto<T> DocumentCollection, string ContinuationToken)> GetItemQueryableAsync<T>(string continuationToken, CancellationToken cancellationToken, QueryRequestOptions queryRequestOptions = null, Expression<Func<T, bool>> predicate = null) where T : DocumentBase
+    public async Task<(DocumentCollectionDto<T> DocumentCollection, string ContinuationToken)> GetItemQueryableAsync<T>(string continuationToken, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate, QueryRequestOptions queryRequestOptions = null) where T : DocumentBase
     {
       DocumentCollectionDto<T> resultDocumentCollection = new DocumentCollectionDto<T>() { IsOperationSuccessful = true };
       string token = "";
@@ -117,14 +117,14 @@ namespace Fixit.Storage.Mediators.Internal
         }
 
         FeedIterator<T> feedIterator;
-        feedIterator = _dbTableEntityAdapter.GetItemLinqQueryable<T>(continuationToken, queryRequestOptions)
-                                            .Where(predicate)
-                                            .ToFeedIterator();
+        feedIterator = _databaseTableEntityAdapter.GetItemLinqQueryable<T>(continuationToken, queryRequestOptions)
+                                          .Where(predicate)
+                                          .ToFeedIterator();
 
-        FeedResponse<T> feedResp = await feedIterator.ReadNextAsync(cancellationToken);
-        token = feedResp.ContinuationToken;
+        FeedResponse<T> feedResponse = await feedIterator.ReadNextAsync(cancellationToken);
+        token = feedResponse.ContinuationToken;
 
-        foreach (var item in feedResp)
+        foreach (var item in feedResponse)
         {
           resultDocumentCollection.Results.Add(item);
         }
@@ -138,7 +138,7 @@ namespace Fixit.Storage.Mediators.Internal
       return (resultDocumentCollection, token);
     }
 
-    public async Task<PagedDocumentCollectionDto<T>> GetItemQueryableByPageAsync<T>(int pageNumber, QueryRequestOptions queryRequestOptions, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate = null) where T : DocumentBase
+    public async Task<PagedDocumentCollectionDto<T>> GetItemQueryableByPageAsync<T>(int pageNumber, QueryRequestOptions queryRequestOptions, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate) where T : DocumentBase
     {
       cancellationToken.ThrowIfCancellationRequested();
       PagedDocumentCollectionDto<T> resultPagedDocumentCollection = new PagedDocumentCollectionDto<T>() { IsOperationSuccessful = true };
@@ -147,27 +147,26 @@ namespace Fixit.Storage.Mediators.Internal
       {
         throw new InvalidOperationException($"{nameof(GetItemQueryableByPageAsync)} expects a valid value for {nameof(pageNumber)}");
       }
-      if (queryRequestOptions.IsNull() || !queryRequestOptions.MaxItemCount.HasValue)
+      if (queryRequestOptions == null || !queryRequestOptions.MaxItemCount.HasValue)
       {
         throw new ArgumentNullException($"{nameof(GetItemQueryableByPageAsync)} expects a valid value for {nameof(queryRequestOptions)}");
       }
 
       try
       {
+        resultPagedDocumentCollection.PageNumber = pageNumber;
         int skippedItems = queryRequestOptions.MaxItemCount.Value * (pageNumber - 1);
-
         FeedResponse<T> feedResponse = default;
 
-        string token = "";
-        var feedIterator = _dbTableEntityAdapter.GetItemLinqQueryable<T>(token, queryRequestOptions)
-                                                .Where(predicate)
-                                                .Skip(skippedItems)
-                                                .Take(queryRequestOptions.MaxItemCount.Value)
-                                                .ToFeedIterator();
+        FeedIterator<T> feedIterator = _databaseTableEntityAdapter.GetItemLinqQueryable<T>(null, queryRequestOptions)
+                                                            .Where(predicate)
+                                                            .Skip(skippedItems)
+                                                            .Take(queryRequestOptions.MaxItemCount.Value)
+                                                            .ToFeedIterator();
         while (feedIterator.HasMoreResults)
         {
           feedResponse = await feedIterator.ReadNextAsync(cancellationToken);
-          if (!feedResponse.IsNull() && feedResponse.Any())
+          if (feedResponse != null && feedResponse.Any())
           {
             foreach (var item in feedResponse)
             {
@@ -175,7 +174,6 @@ namespace Fixit.Storage.Mediators.Internal
             }
           }
         }
-        resultPagedDocumentCollection.PageNumber = pageNumber;
       }
       catch (Exception exception)
       {
@@ -192,7 +190,7 @@ namespace Fixit.Storage.Mediators.Internal
 
       try
       {
-        HttpStatusCode statusCode = await _dbTableEntityAdapter.UpsertItemAsync(item, partitionKey, cancellationToken);
+        HttpStatusCode statusCode = await _databaseTableEntityAdapter.UpsertItemAsync(item, partitionKey, cancellationToken);
 
         if (statusCode == HttpStatusCode.OK || statusCode == HttpStatusCode.NoContent)
         {

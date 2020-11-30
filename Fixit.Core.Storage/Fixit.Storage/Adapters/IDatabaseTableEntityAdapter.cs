@@ -7,7 +7,7 @@ using Microsoft.Azure.Cosmos;
 
 namespace Fixit.Storage.Adapters
 {
-  public interface IClientDbTableEntityAdapter
+  public interface IDatabaseTableEntityAdapter
   {
     /// <summary>
     /// 
