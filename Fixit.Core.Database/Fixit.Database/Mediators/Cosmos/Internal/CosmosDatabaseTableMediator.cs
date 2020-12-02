@@ -16,6 +16,8 @@ namespace Fixit.Database.Mediators.Cosmos.Internal
 
     public async Task<IDatabaseTableEntityMediator> CreateContainerAsync(string containerId, string partitionKeyPath, CancellationToken cancellationToken)
     {
+      cancellationToken.ThrowIfCancellationRequested();
+
       if (string.IsNullOrWhiteSpace(containerId))
       {
         throw new ArgumentNullException($"{nameof(CreateContainerAsync)} expects a valid value for {nameof(containerId)}");
