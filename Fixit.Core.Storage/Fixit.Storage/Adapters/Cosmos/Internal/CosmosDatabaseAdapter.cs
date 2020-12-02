@@ -11,7 +11,7 @@ namespace Fixit.Storage.Adapters.Cosmos.Internal
 
     public CosmosDatabaseAdapter(CosmosClient cosmosClient)
     {
-      _cosmosClient = cosmosClient;
+      _cosmosClient = cosmosClient ?? throw new ArgumentNullException($"{nameof(CosmosDatabaseAdapter)} expects a value for {nameof(cosmosClient)}... null argument was provided");
     }
 
     public async Task<IDatabaseTableAdapter> CreateDatabaseIfNotExistsAsync(string databaseId, CancellationToken cancellationToken)

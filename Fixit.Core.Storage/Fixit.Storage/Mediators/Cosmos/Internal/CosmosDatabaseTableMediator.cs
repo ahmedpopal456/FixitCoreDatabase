@@ -11,7 +11,7 @@ namespace Fixit.Storage.Mediators.Cosmos.Internal
 
     public CosmosDatabaseTableMediator(IDatabaseTableAdapter databaseTableAdapter)
     {
-      _databaseTableAdapter = databaseTableAdapter;
+      _databaseTableAdapter = databaseTableAdapter ?? throw new ArgumentNullException($"{nameof(CosmosDatabaseTableMediator)} expects a value for {nameof(databaseTableAdapter)}... null argument was provided");
     }
 
     public async Task<IDatabaseTableEntityMediator> CreateContainerAsync(string containerId, string partitionKeyPath, CancellationToken cancellationToken)

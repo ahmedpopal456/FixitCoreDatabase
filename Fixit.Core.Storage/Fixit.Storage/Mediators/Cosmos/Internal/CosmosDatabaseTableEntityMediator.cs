@@ -19,11 +19,12 @@ namespace Fixit.Storage.Mediators.Cosmos.Internal
 
     public CosmosDatabaseTableEntityMediator(IDatabaseTableEntityAdapter databaseTableEntityAdapter)
     {
-      _databaseTableEntityAdapter = databaseTableEntityAdapter;
+      _databaseTableEntityAdapter = databaseTableEntityAdapter ?? throw new ArgumentNullException($"{nameof(CosmosDatabaseTableEntityMediator)} expects a value for {nameof(databaseTableEntityAdapter)}... null argument was provided");
     }
 
     public async Task<CreateDocumentDto<T>> CreateItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase
     {
+      cancellationToken.ThrowIfCancellationRequested();
       CreateDocumentDto<T> resultCreateDocument = new CreateDocumentDto<T>() { IsOperationSuccessful = true };
 
       if (string.IsNullOrWhiteSpace(partitionKey))
@@ -48,6 +49,7 @@ namespace Fixit.Storage.Mediators.Cosmos.Internal
 
     public async Task<OperationStatus> DeleteItemAsync<T>(string itemId, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase
     {
+      cancellationToken.ThrowIfCancellationRequested();
       OperationStatus resultStatus = new OperationStatus();
 
       if (string.IsNullOrWhiteSpace(itemId))
@@ -80,6 +82,7 @@ namespace Fixit.Storage.Mediators.Cosmos.Internal
 
     public async Task<DocumentDto<T>> GetItemAsync<T>(string itemId, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase
     {
+      cancellationToken.ThrowIfCancellationRequested();
       DocumentDto<T> document = new DocumentDto<T>() { IsOperationSuccessful = true };
 
       if (string.IsNullOrWhiteSpace(itemId))
@@ -106,6 +109,7 @@ namespace Fixit.Storage.Mediators.Cosmos.Internal
 
     public async Task<(DocumentCollectionDto<T> DocumentCollection, string ContinuationToken)> GetItemQueryableAsync<T>(string continuationToken, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate, QueryRequestOptions queryRequestOptions = null) where T : DocumentBase
     {
+      cancellationToken.ThrowIfCancellationRequested();
       DocumentCollectionDto<T> resultDocumentCollection = new DocumentCollectionDto<T>() { IsOperationSuccessful = true };
       string token = "";
 
@@ -184,8 +188,9 @@ namespace Fixit.Storage.Mediators.Cosmos.Internal
       return resultPagedDocumentCollection;
     }
 
-    public async Task<OperationStatus> UpdateItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken = default) where T : DocumentBase
+    public async Task<OperationStatus> UpdateItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase
     {
+      cancellationToken.ThrowIfCancellationRequested();
       OperationStatus resultStatus = new OperationStatus();
 
       try

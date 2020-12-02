@@ -12,7 +12,7 @@ namespace Fixit.Storage.Mediators.Cosmos.Internal
 
     public CosmosDatabaseMediator(IDatabaseAdapter databaseAdapter)
     {
-      _databaseAdapter = databaseAdapter;
+      _databaseAdapter = databaseAdapter ?? throw new ArgumentNullException($"{nameof(CosmosDatabaseMediator)} expects a value for {nameof(databaseAdapter)}... null argument was provided");
     }
 
     public async Task<IDatabaseTableMediator> CreateDatabaseAsync(string databaseId, CancellationToken cancellationToken)

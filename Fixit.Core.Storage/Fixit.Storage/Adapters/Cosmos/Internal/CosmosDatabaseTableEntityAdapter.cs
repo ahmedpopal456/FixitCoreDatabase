@@ -13,7 +13,7 @@ namespace Fixit.Storage.Adapters.Cosmos.Internal
 
     public CosmosDatabaseTableEntityAdapter(Container container)
     {
-      _container = container;
+      _container = container ?? throw new ArgumentNullException($"{nameof(CosmosDatabaseTableEntityAdapter)} expects a value for {nameof(container)}... null argument was provided");
     }
 
     public async Task<T> CreateItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken)
