@@ -1,4 +1,4 @@
-﻿namespace Fixit.Storage.DataContracts.Documents
+﻿namespace Fixit.Database.DataContracts.Documents
 {
   public class PagedDocumentCollectionDto<T> : DocumentCollectionDto<T>
   {

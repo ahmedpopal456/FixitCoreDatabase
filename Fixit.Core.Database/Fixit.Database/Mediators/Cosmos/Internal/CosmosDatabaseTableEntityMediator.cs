@@ -4,13 +4,13 @@ using System.Linq.Expressions;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Fixit.Storage.Adapters;
-using Fixit.Storage.DataContracts;
-using Fixit.Storage.DataContracts.Documents;
+using Fixit.Database.Adapters;
+using Fixit.Database.DataContracts;
+using Fixit.Database.DataContracts.Documents;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 
-namespace Fixit.Storage.Mediators.Cosmos.Internal
+namespace Fixit.Database.Mediators.Cosmos.Internal
 {
   internal class CosmosDatabaseTableEntityMediator : IDatabaseTableEntityMediator
   {

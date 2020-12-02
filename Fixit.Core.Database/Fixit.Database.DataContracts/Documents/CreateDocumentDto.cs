@@ -1,9 +1,9 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Fixit.Storage.DataContracts.Documents
+namespace Fixit.Database.DataContracts.Documents
 {
   [DataContract]
-  public class DocumentDto<T> : OperationStatus
+  public class CreateDocumentDto<T> : OperationStatus
   {
     [DataMember]
     public T Document { get; set; }

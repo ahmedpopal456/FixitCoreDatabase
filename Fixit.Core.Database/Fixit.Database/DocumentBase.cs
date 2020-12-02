@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Fixit.Storage
+namespace Fixit.Database
 {
   [DataContract]
   public class DocumentBase

@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 
-namespace Fixit.Storage.Adapters.Cosmos.Internal
+namespace Fixit.Database.Adapters.Cosmos.Internal
 {
   internal class CosmosDatabaseTableEntityAdapter : IDatabaseTableEntityAdapter
   {

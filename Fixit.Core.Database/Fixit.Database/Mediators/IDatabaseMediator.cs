@@ -1,10 +1,9 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Fixit.Storage.Adapters
+namespace Fixit.Database.Mediators
 {
-  public interface IDatabaseAdapter: IDisposable
+  public interface IDatabaseMediator
   {
     /// <summary>
     /// 
@@ -12,13 +11,13 @@ namespace Fixit.Storage.Adapters
     /// <param name="databaseId"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<IDatabaseTableAdapter> CreateDatabaseIfNotExistsAsync(string databaseId, CancellationToken cancellationToken);
+    Task<IDatabaseTableMediator> CreateDatabaseAsync(string databaseId, CancellationToken cancellationToken);
 
     /// <summary>
     /// 
     /// </summary>
     /// <param name="databaseId"></param>
     /// <returns></returns>
-    IDatabaseTableAdapter GetDatabase(string databaseId);
+    IDatabaseTableMediator GetDatabase(string databaseId);
   }
 }

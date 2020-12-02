@@ -4,13 +4,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 
-namespace Fixit.Storage.Adapters.Cosmos.Internal
+namespace Fixit.Database.Adapters.Cosmos.Internal
 {
   internal class CosmosDatabaseTableAdapter : IDatabaseTableAdapter
   {
-    private Database _database;
+    private Microsoft.Azure.Cosmos.Database _database;
 
-    public CosmosDatabaseTableAdapter(Database database)
+    public CosmosDatabaseTableAdapter(Microsoft.Azure.Cosmos.Database database)
     {
       _database = database ?? throw new ArgumentNullException($"{nameof(CosmosDatabaseTableAdapter)} expects a value for {nameof(database)}... null argument was provided");
     }

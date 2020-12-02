@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Fixit.Storage.DataContracts
+namespace Fixit.Database.DataContracts
 {
   // TODO: add Fixit error code definitions
   public class OperationStatus

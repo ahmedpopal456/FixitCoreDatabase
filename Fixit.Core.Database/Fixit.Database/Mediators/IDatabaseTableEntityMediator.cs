@@ -3,10 +3,10 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
-using Fixit.Storage.DataContracts;
-using Fixit.Storage.DataContracts.Documents;
+using Fixit.Database.DataContracts;
+using Fixit.Database.DataContracts.Documents;
 
-namespace Fixit.Storage.Mediators
+namespace Fixit.Database.Mediators
 {
   public interface IDatabaseTableEntityMediator
   {

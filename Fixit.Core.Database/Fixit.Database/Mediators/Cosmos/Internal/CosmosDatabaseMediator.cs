@@ -1,10 +1,10 @@
 ﻿using System;
 
-using Fixit.Storage.Adapters;
+using Fixit.Database.Adapters;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Fixit.Storage.Mediators.Cosmos.Internal
+namespace Fixit.Database.Mediators.Cosmos.Internal
 {
   internal class CosmosDatabaseMediator : IDatabaseMediator
   {

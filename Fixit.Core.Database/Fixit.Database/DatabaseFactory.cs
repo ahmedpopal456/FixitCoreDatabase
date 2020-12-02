@@ -1,12 +1,12 @@
 ﻿using System;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
-using Fixit.Storage.Adapters.Cosmos.Internal;
-using Fixit.Storage.Mediators;
-using Fixit.Storage.Mediators.Cosmos.Internal;
+using Fixit.Database.Adapters.Cosmos.Internal;
+using Fixit.Database.Mediators;
+using Fixit.Database.Mediators.Cosmos.Internal;
 
 
-namespace Fixit.Storage
+namespace Fixit.Database
 {
   public class DatabaseFactory
   {
