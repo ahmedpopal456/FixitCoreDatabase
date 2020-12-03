@@ -131,7 +131,7 @@ jobs:
       feedsToUse: 'select'
       packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
       nuGetFeedType: 'internal'
-      publishVstsFeed: 'fix-core-database'
+      publishVstsFeed: '08d378fd-be72-4c80-9ce4-1a7c754efb98/e490ee0a-aeda-408b-b3f8-130d94b0c475'
       versioningScheme: 'byEnvVar'
       versionEnvVar: BUILD.BUILDNUMBER
       allowPackageConflicts: true
