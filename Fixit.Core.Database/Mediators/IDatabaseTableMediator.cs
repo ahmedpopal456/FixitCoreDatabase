@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Fixit.Database.Mediators
+namespace Fixit.Core.Database.Mediators
 {
   public interface IDatabaseTableMediator
   {

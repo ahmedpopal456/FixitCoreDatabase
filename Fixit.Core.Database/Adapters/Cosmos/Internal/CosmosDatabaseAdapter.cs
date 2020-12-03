@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 
-namespace Fixit.Database.Adapters.Cosmos.Internal
+namespace Fixit.Core.Database.Adapters.Cosmos.Internal
 {
   internal class CosmosDatabaseAdapter : IDatabaseAdapter
   {

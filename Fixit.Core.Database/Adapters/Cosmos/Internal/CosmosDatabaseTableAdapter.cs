@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Fixit.Database.Adapters.Cosmos.Internal
+namespace Fixit.Core.Database.Adapters.Cosmos.Internal
 {
   internal class CosmosDatabaseTableAdapter : IDatabaseTableAdapter
   {

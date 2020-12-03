@@ -3,7 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Fixit.Database.Adapters
+namespace Fixit.Core.Database.Adapters
 {
   public interface IDatabaseTableAdapter
   {

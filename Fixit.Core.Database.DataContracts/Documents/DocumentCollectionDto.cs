@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Fixit.Database.DataContracts.Documents
+namespace Fixit.Core.Database.DataContracts.Documents
 {
   public class DocumentCollectionDto<T> : OperationStatus
   {

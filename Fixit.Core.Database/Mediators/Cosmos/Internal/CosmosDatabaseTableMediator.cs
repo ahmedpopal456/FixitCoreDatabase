@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Fixit.Database.Adapters;
+using Fixit.Core.Database.Adapters;
 
-namespace Fixit.Database.Mediators.Cosmos.Internal
+namespace Fixit.Core.Database.Mediators.Cosmos.Internal
 {
   internal class CosmosDatabaseTableMediator : IDatabaseTableMediator
   {

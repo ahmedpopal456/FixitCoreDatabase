@@ -1,11 +1,10 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 
-namespace Fixit.Database.Adapters
+namespace Fixit.Core.Database.Adapters
 {
   public interface IDatabaseTableEntityAdapter
   {
