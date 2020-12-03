@@ -31,6 +31,21 @@ namespace Fixit.Database
       _authenticationKey = authenticationKey;
     }
 
+    public DatabaseFactory(String accountEndpoint, String authenticationKey)
+    {
+      if (string.IsNullOrWhiteSpace(accountEndpoint))
+      {
+        throw new ArgumentNullException($"{nameof(DatabaseFactory)} expects a valid value for {nameof(accountEndpoint)}");
+      }
+      if (string.IsNullOrWhiteSpace(authenticationKey))
+      {
+        throw new ArgumentNullException($"{nameof(DatabaseFactory)} expects a valid value for {nameof(authenticationKey)}");
+      }
+
+      _accountEndpoint = accountEndpoint;
+      _authenticationKey = authenticationKey;
+    }
+
     public IDatabaseMediator CreateCosmosClient()
     {
       CosmosClient cosmosClient = new CosmosClient(_accountEndpoint, _authenticationKey);
