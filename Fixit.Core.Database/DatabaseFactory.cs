@@ -31,7 +31,7 @@ namespace Fixit.Core.Database
       _authenticationKey = authenticationKey;
     }
 
-    public DatabaseFactory(String accountEndpoint, String authenticationKey)
+    public DatabaseFactory(string accountEndpoint, string authenticationKey)
     {
       if (string.IsNullOrWhiteSpace(accountEndpoint))
       {
