@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Fixit.Core.Database.Adapters;
@@ -10,6 +11,7 @@ using Fixit.Core.Database.DataContracts.Documents;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 
+[assembly: InternalsVisibleTo("Fixit.Core.Database.UnitTests")]
 namespace Fixit.Core.Database.Mediators.Cosmos.Internal
 {
   internal class CosmosDatabaseTableEntityMediator : IDatabaseTableEntityMediator
@@ -192,6 +194,11 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
     {
       cancellationToken.ThrowIfCancellationRequested();
       OperationStatus resultStatus = new OperationStatus();
+
+      if (string.IsNullOrWhiteSpace(partitionKey))
+      {
+        throw new ArgumentNullException($"{nameof(UpdateItemAsync)} expects a valid value for {nameof(partitionKey)}");
+      }
 
       try
       {
