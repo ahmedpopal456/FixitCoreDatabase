@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Fixit.Core.Database.Adapters;
+using Fixit.Core.Database.Adapters.Cosmos;
 using Fixit.Core.Database.Mediators;
 using Fixit.Core.Database.Mediators.Cosmos.Internal;
 using Moq;
@@ -18,19 +20,27 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
   public class CosmosDatabaseTableEntityMediatorTests : TestBase
   {
     private IDatabaseTableEntityMediator _cosmosDatabaseTableEntityMediator;
+    private Mock<ICosmosLinqQueryAdapter> _cosmosLinqQueryAdapter;
+    private Mock<FeedIterator<DocumentBase>> _feedIterator;
+    private Mock<FeedResponse<DocumentBase>> _feedResponse;
 
     private IEnumerable<DocumentBase> _fakeDocumentBases;
 
     [TestInitialize]
     public void TestInitialize()
     {
+      _cosmosDatabaseTableEntityAdapter = new Mock<IDatabaseTableEntityAdapter>();
+      _cosmosLinqQueryAdapter = new Mock<ICosmosLinqQueryAdapter>();
+      _feedIterator = new Mock<FeedIterator<DocumentBase>>();
+      _feedResponse = new Mock<FeedResponse<DocumentBase>>();
+
       // Create Seeders
       var fakeDocumentBaseSeeder = fakeDtoSeederFactory.CreateFakeSeeder<DocumentBase>();
 
       // Create fake data objects
       _fakeDocumentBases = fakeDocumentBaseSeeder.SeedFakeDtos();
 
-      _cosmosDatabaseTableEntityMediator = new CosmosDatabaseTableEntityMediator(_cosmosDatabaseTableEntityAdapter.Object);
+      _cosmosDatabaseTableEntityMediator = new CosmosDatabaseTableEntityMediator(_cosmosDatabaseTableEntityAdapter.Object, _cosmosLinqQueryAdapter.Object);
     }
 
     [TestMethod]
@@ -205,6 +215,18 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
     }
 
     [TestMethod]
+    public async Task GetItemQueryableAsync_NullPredicate_ThrowsException()
+    {
+      // Arrange
+      var continuationToken = " ";
+      var cancellationToken = CancellationToken.None;
+
+      // Act
+      // Assert
+      await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => _cosmosDatabaseTableEntityMediator.GetItemQueryableAsync<DocumentBase>(continuationToken, cancellationToken, null));
+    }
+
+    [TestMethod]
     public async Task GetItemQueryableAsync_OperationException_ReturnsException()
     {
       // Arrange
@@ -215,7 +237,7 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
                                        .Throws(new Exception());
 
       // Act
-      var actionResult = await _cosmosDatabaseTableEntityMediator.GetItemQueryableAsync<DocumentBase>(continuationToken, cancellationToken, null);
+      var actionResult = await _cosmosDatabaseTableEntityMediator.GetItemQueryableAsync<DocumentBase>(continuationToken, cancellationToken, i => i.EntityId == "123");
 
       // Assert
       Assert.IsNotNull(actionResult.DocumentCollection.OperationException);
@@ -229,13 +251,19 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
       var continuationToken = " ";
       var cancellationToken = CancellationToken.None;
       List<DocumentBase> documents = new List<DocumentBase>() { _fakeDocumentBases.Last(), _fakeDocumentBases.Last() };
+      var orderedQueryable = (from doc in documents select doc).AsQueryable().OrderBy( i => i.EntityId);
 
-      _cosmosDatabaseTableEntityAdapter.Setup(databaseTableEntityAdapter => databaseTableEntityAdapter.GetItemLinqQueryable<DocumentBase>(continuationToken, It.IsAny<QueryRequestOptions>())
-                                                                                                      .Where(It.IsAny<Expression<Func<DocumentBase, bool>>>()))
-                                       .Returns(documents.AsQueryable());
+      _cosmosDatabaseTableEntityAdapter.Setup(databaseTableEntityAdapter => databaseTableEntityAdapter.GetItemLinqQueryable<DocumentBase>(null, null))
+                                       .Returns(orderedQueryable);
+      _cosmosLinqQueryAdapter.Setup(cosmosLinqQuery => cosmosLinqQuery.ToFeedIterator(It.IsAny<IQueryable<DocumentBase>>()))
+                             .Returns(_feedIterator.Object);
+      _feedIterator.Setup(feedIterator => feedIterator.ReadNextAsync(It.IsAny<CancellationToken>()))
+                   .ReturnsAsync(_feedResponse.Object);
+      _feedResponse.Setup(feedResponse => feedResponse.GetEnumerator())
+                   .Returns(documents.GetEnumerator());
 
       // Act
-      var actionResult = await _cosmosDatabaseTableEntityMediator.GetItemQueryableAsync<DocumentBase>(continuationToken, cancellationToken, null);
+      var actionResult = await _cosmosDatabaseTableEntityMediator.GetItemQueryableAsync<DocumentBase>(continuationToken, cancellationToken, i => i.EntityId == "123");
 
       // Assert
       Assert.IsNotNull(actionResult.DocumentCollection.Results);
@@ -256,16 +284,31 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
     }
 
     [TestMethod]
-    public async Task GetItemQueryableByPageAsync_NullMaxItemCount_ThrowsException()
+    [DataRow(2, 0, DisplayName = "NullOrInvalid_PageSize")]
+    public async Task GetItemQueryableByPageAsync_NullMaxItemCount_ThrowsException(int pageNumber, int pageSize)
     {
       // Arrange
       var cancellationToken = CancellationToken.None;
-      var queryRequestOptions = new QueryRequestOptions();
+      var queryRequestOptions = new QueryRequestOptions() { MaxItemCount = pageSize };
 
       // Act
       // Assert
-      await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => _cosmosDatabaseTableEntityMediator.GetItemQueryableByPageAsync(It.IsAny<int>(), queryRequestOptions, cancellationToken, It.IsAny<Expression<Func<DocumentBase, bool>>>()));
+      await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => _cosmosDatabaseTableEntityMediator.GetItemQueryableByPageAsync(pageNumber, queryRequestOptions, cancellationToken, It.IsAny<Expression<Func<DocumentBase, bool>>>()));
     }
+
+    [TestMethod]
+    [DataRow(2, 5, DisplayName = "Any_PageNumberPageSize")]
+    public async Task GetItemQueryableByPageAsync_NullPredicate_ThrowsException(int pageNumber, int pageSize)
+    {
+      // Arrange
+      var cancellationToken = CancellationToken.None;
+      var queryRequestOptions = new QueryRequestOptions() { MaxItemCount = pageSize };
+
+      // Act
+      // Assert
+      await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => _cosmosDatabaseTableEntityMediator.GetItemQueryableByPageAsync<DocumentBase>(pageNumber, queryRequestOptions, cancellationToken, null));
+    }
+
 
     [TestMethod]
     [DataRow(2, 5, DisplayName = "Any_PageNumberPageSize")]
@@ -279,7 +322,7 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
                                        .Throws(new Exception());
 
       // Act
-      var actionResult = await _cosmosDatabaseTableEntityMediator.GetItemQueryableByPageAsync<DocumentBase>(pageNumber, queryRequestOptions, cancellationToken, null);
+      var actionResult = await _cosmosDatabaseTableEntityMediator.GetItemQueryableByPageAsync<DocumentBase>(pageNumber, queryRequestOptions, cancellationToken, i => i.EntityId == "123");
 
       // Assert
       Assert.IsNotNull(actionResult.OperationException);
@@ -294,15 +337,22 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
       var cancellationToken = CancellationToken.None;
       var queryRequestOptions = new QueryRequestOptions() { MaxItemCount = pageSize };
       List<DocumentBase> documents = new List<DocumentBase>() { _fakeDocumentBases.Last(), _fakeDocumentBases.Last() };
+      var orderedQueryable = (from doc in documents select doc).AsQueryable().OrderBy(i => i.EntityId);
 
-      _cosmosDatabaseTableEntityAdapter.Setup(databaseTableEntityAdapter => databaseTableEntityAdapter.GetItemLinqQueryable<DocumentBase>(null, It.IsAny<QueryRequestOptions>())
-                                                                                                      .Where(It.IsAny<Expression<Func<DocumentBase, bool>>>())
-                                                                                                      .Skip(It.IsAny<int>())
-                                                                                                      .Take(queryRequestOptions.MaxItemCount.Value))
-                                       .Returns(documents.AsQueryable());
+      _cosmosDatabaseTableEntityAdapter.Setup(databaseTableEntityAdapter => databaseTableEntityAdapter.GetItemLinqQueryable<DocumentBase>(null, It.IsAny<QueryRequestOptions>()))
+                                       .Returns(orderedQueryable);
+      _cosmosLinqQueryAdapter.Setup(cosmosLinqQuery => cosmosLinqQuery.ToFeedIterator(It.IsAny<IQueryable<DocumentBase>>()))
+                             .Returns(_feedIterator.Object);
+      _feedIterator.SetupSequence(feedIterator => feedIterator.HasMoreResults)
+                   .Returns(true)
+                   .Returns(false);
+      _feedIterator.Setup(feedIterator => feedIterator.ReadNextAsync(It.IsAny<CancellationToken>()))
+                   .ReturnsAsync(_feedResponse.Object);
+      _feedResponse.Setup(feedResponse => feedResponse.GetEnumerator())
+                   .Returns(documents.GetEnumerator());
 
       // Act
-      var actionResult = await _cosmosDatabaseTableEntityMediator.GetItemQueryableByPageAsync<DocumentBase>(pageNumber, queryRequestOptions, cancellationToken, null);
+      var actionResult = await _cosmosDatabaseTableEntityMediator.GetItemQueryableByPageAsync<DocumentBase>(pageNumber, queryRequestOptions, cancellationToken, i => i.EntityId == "123");
 
       // Assert
       Assert.IsNotNull(actionResult.PageNumber);
@@ -381,6 +431,12 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
     [TestCleanup]
     public void TestCleanup()
     {
+      // Clean-up mock objects
+      _cosmosDatabaseTableEntityAdapter.Reset();
+      _cosmosLinqQueryAdapter.Reset();
+      _feedIterator.Reset();
+      _feedResponse.Reset();
+
       // Clean-up data objects
       _fakeDocumentBases = null;
     }

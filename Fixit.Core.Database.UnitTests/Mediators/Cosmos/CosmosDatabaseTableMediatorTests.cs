@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Fixit.Core.Database.Adapters;
 using Fixit.Core.Database.Mediators;
 using Fixit.Core.Database.Mediators.Cosmos.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,6 +17,9 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
     [TestInitialize]
     public void TestInitialize()
     {
+      _cosmosDatabaseTableAdapter = new Mock<IDatabaseTableAdapter>();
+      _cosmosDatabaseTableEntityAdapter = new Mock<IDatabaseTableEntityAdapter>();
+
       _cosmosDatabaseTableMediator = new CosmosDatabaseTableMediator(_cosmosDatabaseTableAdapter.Object);
     }
 
@@ -77,6 +81,9 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
     [TestCleanup]
     public void TestCleanup()
     {
+      // Clean-up mock objects
+      _cosmosDatabaseTableAdapter.Reset();
+      _cosmosDatabaseTableEntityAdapter.Reset();
     }
   }
 }
