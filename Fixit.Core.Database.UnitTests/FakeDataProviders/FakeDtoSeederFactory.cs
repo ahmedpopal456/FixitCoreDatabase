@@ -1,4 +1,6 @@
-﻿namespace Fixit.Core.Database.UnitTests.Adapters
+﻿using Fixit.Core.DataContracts;
+
+namespace Fixit.Core.Database.UnitTests.Adapters
 {
   public class FakeDtoSeederFactory : IFakeSeederFactory
   {

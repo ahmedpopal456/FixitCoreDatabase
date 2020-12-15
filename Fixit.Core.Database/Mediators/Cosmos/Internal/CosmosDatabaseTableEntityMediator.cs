@@ -10,7 +10,6 @@ using Fixit.Core.Database.Adapters.Cosmos;
 using Fixit.Core.Database.DataContracts;
 using Fixit.Core.Database.DataContracts.Documents;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 
 [assembly: InternalsVisibleTo("Fixit.Core.Database.UnitTests")]
 namespace Fixit.Core.Database.Mediators.Cosmos.Internal

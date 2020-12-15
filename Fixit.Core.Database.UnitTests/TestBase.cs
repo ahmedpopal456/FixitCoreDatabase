@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Fixit.Core.Database.UnitTests.Adapters;
 using Fixit.Core.Database.Adapters;
-using Fixit.Core.Database.Mediators;
+using Fixit.Core.DataContracts;
 
 namespace Fixit.Core.Database.UnitTests
 {

@@ -6,7 +6,6 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Fixit.Core.Database.Adapters;
 using Fixit.Core.Database.Adapters.Cosmos;
