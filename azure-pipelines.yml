@@ -97,8 +97,8 @@ jobs:
     inputs:
       command: restore
       projects: '$(buildProjects)'
+      feedsToUse: 'config'
       includeNuGetOrg: true
-      nobuild: true
   
   # Build
   - task: DotNetCoreCLI@2
