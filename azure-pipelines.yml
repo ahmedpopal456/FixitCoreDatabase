@@ -99,7 +99,8 @@ jobs:
       projects: '$(buildProjects)'
       feedsToUse: 'config'
       includeNuGetOrg: true
-  
+      nugetConfigPath: '**/nuget.config'
+      
   # Build
   - task: DotNetCoreCLI@2
     displayName: Build
