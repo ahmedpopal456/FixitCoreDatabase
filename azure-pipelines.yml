@@ -1,7 +1,7 @@
 trigger:
   branches:
       include:
-        - development
+        - staging
         - master
 
 variables:
@@ -32,20 +32,20 @@ jobs:
         echo "##vso[build.updatebuildnumber]$(majorProductVersion).$(minorProductVersion).$(masterPatchCount)"
       name: IfMasterSetBuildNameAndPatch
 
-# development branch versioning
-- job: Build_Development_Version_Number
-  condition: eq(variables['Build.SourceBranch'], 'refs/heads/development')
+# staging branch versioning
+- job: Build_Staging_Version_Number
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/staging')
   variables:
-    developmentMajorMinor: $(majorProductVersion).$(minorProductVersion)-beta
-    developmentPatchCount: $[counter(variables['developmentMajorMinor'], 0)]
+    stagingMajorMinor: $(majorProductVersion).$(minorProductVersion)-beta
+    stagingPatchCount: $[counter(variables['stagingMajorMinor'], 0)]
   steps:
     - bash: |
-        echo "##vso[build.updatebuildnumber]$(majorProductVersion).$(minorProductVersion).$(developmentPatchCount)-beta"
-      name: IfDevelopmentSetBuildNameAndPatch
+        echo "##vso[build.updatebuildnumber]$(majorProductVersion).$(minorProductVersion).$(stagingPatchCount)-beta"
+      name: IfStagingSetBuildNameAndPatch
 
-# PR versioning for master branch & development branch
+# PR versioning for master branch & staging branch
 - job: Build_PullRequest_Version_Number
-  condition: and(ne(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.SourceBranch'], 'refs/heads/development'), eq(variables['Build.Reason'], 'PullRequest'))
+  condition: and(ne(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.SourceBranch'], 'refs/heads/staging'), eq(variables['Build.Reason'], 'PullRequest'))
   variables:
     pullRequestMajorMinor: $(majorProductVersion).$(minorProductVersion)-alpha$(variables['system.pullrequest.pullrequestid'])
     pullRequestPatchCount: $[counter(variables['pullRequestMajorMinor'], 0)]
@@ -54,9 +54,9 @@ jobs:
         echo "##vso[build.updatebuildnumber]$(majorProductVersion).$(minorProductVersion).0-alpha$(system.pullrequest.pullrequestid)-$(pullRequestPatchCount)"
       name: IfPullRequestBuildNameAndPatch
 
-# Name branch prefix to build version (master branch & development branch)
+# Name branch prefix to build version (master branch & staging branch)
 - job: Build_Branch_Version_Number
-  condition: and(ne(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.SourceBranch'], 'refs/heads/development'), ne(variables['Build.Reason'], 'PullRequest'))
+  condition: and(ne(variables['Build.SourceBranch'], 'refs/heads/master'), ne(variables['Build.SourceBranch'], 'refs/heads/staging'), ne(variables['Build.Reason'], 'PullRequest'))
   variables:
     branchMajorMinor: $(majorProductVersion).$(minorProductVersion)-br$(variables['build.sourcebranch'])
     branchPatchCount: $[counter(variables['branchMajorMinor'], 0)]
@@ -69,9 +69,9 @@ jobs:
   dependsOn:
       - Build_Branch_Version_Number
       - Build_PullRequest_Version_Number
-      - Build_Development_Version_Number
+      - Build_Staging_Version_Number
       - Build_Master_Version_Number
-  condition: or(succeeded('Build_Branch_Version_Number'), succeeded('Build_PullRequest_Version_Number'), succeeded('Build_Development_Version_Number'), succeeded('Build_Master_Version_Number'))
+  condition: or(succeeded('Build_Branch_Version_Number'), succeeded('Build_PullRequest_Version_Number'), succeeded('Build_Staging_Version_Number'), succeeded('Build_Master_Version_Number'))
 
   pool:
     vmImage: 'windows-2019'
@@ -100,7 +100,7 @@ jobs:
       feedsToUse: 'select'
       includeNuGetOrg: true
       vstsFeed: '08d378fd-be72-4c80-9ce4-1a7c754efb98/4e00d135-54d5-4586-8976-a469a5b325bf'
-      
+  
   # Build
   - task: DotNetCoreCLI@2
     displayName: Build
