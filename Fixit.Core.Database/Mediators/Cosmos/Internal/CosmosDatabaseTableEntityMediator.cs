@@ -2,24 +2,31 @@
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Fixit.Core.Database.Adapters;
+using Fixit.Core.Database.Adapters.Cosmos;
 using Fixit.Core.Database.DataContracts;
 using Fixit.Core.Database.DataContracts.Documents;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 
+[assembly: InternalsVisibleTo("Fixit.Core.Database.UnitTests")]
 namespace Fixit.Core.Database.Mediators.Cosmos.Internal
 {
   internal class CosmosDatabaseTableEntityMediator : IDatabaseTableEntityMediator
   {
     private IDatabaseTableEntityAdapter _databaseTableEntityAdapter;
-    private const int _defaultPageSize = 20;
+    private ICosmosLinqQueryAdapter _cosmosLinqQueryAdapter;
 
-    public CosmosDatabaseTableEntityMediator(IDatabaseTableEntityAdapter databaseTableEntityAdapter)
+    public CosmosDatabaseTableEntityMediator(IDatabaseTableEntityAdapter databaseTableEntityAdapter, ICosmosLinqQueryAdapter cosmosLinqQueryAdapter = null)
     {
       _databaseTableEntityAdapter = databaseTableEntityAdapter ?? throw new ArgumentNullException($"{nameof(CosmosDatabaseTableEntityMediator)} expects a value for {nameof(databaseTableEntityAdapter)}... null argument was provided");
+      if (cosmosLinqQueryAdapter == null)
+      {
+        cosmosLinqQueryAdapter = new CosmosLinqQueryAdapter();
+      }
+      _cosmosLinqQueryAdapter = cosmosLinqQueryAdapter;
     }
 
     public async Task<CreateDocumentDto<T>> CreateItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase
@@ -113,6 +120,11 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
       DocumentCollectionDto<T> resultDocumentCollection = new DocumentCollectionDto<T>() { IsOperationSuccessful = true };
       string token = "";
 
+      if (predicate == null)
+      {
+        throw new ArgumentNullException($"{nameof(GetItemQueryableAsync)} expects a valid value for {nameof(predicate)}");
+      }
+
       try
       {
         if (string.IsNullOrWhiteSpace(continuationToken))
@@ -120,10 +132,9 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
           continuationToken = null;
         }
 
-        FeedIterator<T> feedIterator;
-        feedIterator = _databaseTableEntityAdapter.GetItemLinqQueryable<T>(continuationToken, queryRequestOptions)
-                                          .Where(predicate)
-                                          .ToFeedIterator();
+        var queryable = _databaseTableEntityAdapter.GetItemLinqQueryable<T>(continuationToken, queryRequestOptions)
+                                                   .Where(predicate);
+        FeedIterator<T> feedIterator = _cosmosLinqQueryAdapter.ToFeedIterator(queryable);
 
         FeedResponse<T> feedResponse = await feedIterator.ReadNextAsync(cancellationToken);
         token = feedResponse.ContinuationToken;
@@ -151,9 +162,13 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
       {
         throw new InvalidOperationException($"{nameof(GetItemQueryableByPageAsync)} expects a valid value for {nameof(pageNumber)}");
       }
-      if (queryRequestOptions == null || !queryRequestOptions.MaxItemCount.HasValue)
+      if (queryRequestOptions == null || queryRequestOptions.MaxItemCount <= default(int))
       {
         throw new ArgumentNullException($"{nameof(GetItemQueryableByPageAsync)} expects a valid value for {nameof(queryRequestOptions)}");
+      }
+      if (predicate == null)
+      {
+        throw new ArgumentNullException($"{nameof(GetItemQueryableByPageAsync)} expects a valid value for {nameof(predicate)}");
       }
 
       try
@@ -162,11 +177,12 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
         int skippedItems = queryRequestOptions.MaxItemCount.Value * (pageNumber - 1);
         FeedResponse<T> feedResponse = default;
 
-        FeedIterator<T> feedIterator = _databaseTableEntityAdapter.GetItemLinqQueryable<T>(null, queryRequestOptions)
-                                                            .Where(predicate)
-                                                            .Skip(skippedItems)
-                                                            .Take(queryRequestOptions.MaxItemCount.Value)
-                                                            .ToFeedIterator();
+        var queryable = _databaseTableEntityAdapter.GetItemLinqQueryable<T>(null, queryRequestOptions)
+                                                   .Where(predicate)
+                                                   .Skip(skippedItems)
+                                                   .Take(queryRequestOptions.MaxItemCount.Value);
+        FeedIterator<T> feedIterator = _cosmosLinqQueryAdapter.ToFeedIterator(queryable);
+
         while (feedIterator.HasMoreResults)
         {
           feedResponse = await feedIterator.ReadNextAsync(cancellationToken);
@@ -192,6 +208,11 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
     {
       cancellationToken.ThrowIfCancellationRequested();
       OperationStatus resultStatus = new OperationStatus();
+
+      if (string.IsNullOrWhiteSpace(partitionKey))
+      {
+        throw new ArgumentNullException($"{nameof(UpdateItemAsync)} expects a valid value for {nameof(partitionKey)}");
+      }
 
       try
       {
