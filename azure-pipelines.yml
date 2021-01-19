@@ -107,7 +107,24 @@ jobs:
     inputs:
       projects: '$(buildProjects)'
       arguments: '--configuration $(buildConfiguration) --no-restore'
-  
+
+  # Tests
+  - task: DotNetCoreCLI@2
+    displayName: Unit Tests
+    inputs:
+      command: 'test'
+      testRunTitle: 'Fixit Core Database Unit Tests'
+      projects: '**/Fixit.Core.Database.UnitTests.csproj'
+      arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      nobuild: true
+
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish Fixit.Core.Database code coverage'
+    inputs:
+      codeCoverageTool: 'Cobertura'
+      summaryFileLocation: '$(Build.SourcesDirectory)/**/Fixit.Core.Database.UnitTests/**/coverage.cobertura.xml'
+      reportDirectory: '$(Build.SourcesDirectory)/CodeCoverage'
+
   # Pack
   - task: DotNetCoreCLI@2
     displayName: "Pack"
