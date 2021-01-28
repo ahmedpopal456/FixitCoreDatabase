@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Fixit.Core.Database.Adapters;
 using Fixit.Core.Database.Adapters.Cosmos;
-using Fixit.Core.Database.DataContracts;
+using Fixit.Core.DataContracts;
 using Fixit.Core.Database.DataContracts.Documents;
 using Microsoft.Azure.Cosmos;
 

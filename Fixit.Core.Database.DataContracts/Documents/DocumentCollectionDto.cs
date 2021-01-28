@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Fixit.Core.DataContracts;
 
 namespace Fixit.Core.Database.DataContracts.Documents
 {
