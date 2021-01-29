@@ -41,7 +41,7 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
 
       try
       {
-        item.id = Guid.NewGuid().ToString();
+        item.id ??= Guid.NewGuid().ToString();
         item.EntityId = partitionKey;
 
         resultCreateDocument.Document = await _databaseTableEntityAdapter.CreateItemAsync(item, partitionKey, cancellationToken);
