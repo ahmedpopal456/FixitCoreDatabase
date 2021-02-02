@@ -115,7 +115,7 @@ jobs:
       command: 'test'
       testRunTitle: 'Fixit Core Database Unit Tests'
       projects: '**/Fixit.Core.Database.UnitTests.csproj'
-      arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura'
+      arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[*]Fixit.Core.Database.Adapters*"'
       nobuild: true
 
   - task: PublishCodeCoverageResults@1
