@@ -112,7 +112,7 @@ jobs:
       extraProperties: |
         sonar.exclusions=**/*.bin
         sonar.language=cs
-        sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/Fixit.Core.Database.UnitTests/**/coverage.opencover.xml'
+        sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
 
   # Build
   - task: DotNetCoreCLI@2
@@ -128,8 +128,20 @@ jobs:
       command: 'test'
       testRunTitle: 'Fixit Core Database Unit Tests'
       projects: '**/Fixit.Core.Database.UnitTests.csproj'
-      arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=\"cobertura,opencover\" /p:Exclude="[*]Fixit.Core.Database.Adapters*"'
+      arguments: '--configuration $(BuildConfiguration) /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Exclude="[*]Fixit.Core.Database.Adapters*"'
       nobuild: true
+
+  - script: |
+      dotnet tool install -g dotnet-reportgenerator-globaltool
+      reportgenerator "-reports:$(Build.SourcesDirectory)/**/coverage.opencover.xml" "-targetdir:$(Build.SourcesDirectory)/CodeCoverage" "-reporttypes:HtmlInline_AzurePipelines;Cobertura"
+    displayName: Create Code coverage report
+
+  - task: PublishCodeCoverageResults@1
+    displayName: 'Publish code coverage'
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(Build.SourcesDirectory)/CodeCoverage/Cobertura.xml'
+      reportDirectory: '$(Build.SourcesDirectory)/CodeCoverage'
 
   # Run Sonar Cloud Analysis
   - task: SonarCloudAnalyze@1
@@ -138,13 +150,6 @@ jobs:
   - task: SonarCloudPublish@1
     inputs:
       pollingTimeoutSec: '300'
-      
-  - task: PublishCodeCoverageResults@1
-    displayName: 'Publish Fixit.Core.Database code coverage'
-    inputs:
-      codeCoverageTool: 'Cobertura'
-      summaryFileLocation: '$(Build.SourcesDirectory)/**/Fixit.Core.Database.UnitTests/**/coverage.cobertura.xml'
-      reportDirectory: '$(Build.SourcesDirectory)/CodeCoverage'
 
   # Pack
   - task: DotNetCoreCLI@2
@@ -158,7 +163,6 @@ jobs:
       versioningScheme: 'byEnvVar'
       versionEnvVar: BUILD.BUILDNUMBER
 
-  
   # Publish to Feed
   # allowPackageConflicts allows us to build the same version and not throw an error when trying to push, instead it just ingores the latest package unless the version changes
   # publishVstsFeed is fix-core-database Feed
