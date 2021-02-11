@@ -100,7 +100,20 @@ jobs:
       feedsToUse: 'select'
       includeNuGetOrg: true
       vstsFeed: '08d378fd-be72-4c80-9ce4-1a7c754efb98/4e00d135-54d5-4586-8976-a469a5b325bf'
-  
+
+  # Prepare Sonar Cloud Analysis 
+  - task: SonarCloudPrepare@1
+    inputs:
+      SonarCloud: 'fixit-sonarcloud'
+      organization: 'fixit'
+      scannerMode: 'MSBuild'
+      projectKey: 'fixit-app_FixitCoreDatabase'
+      projectName: 'FixitCoreDatabase'
+      extraProperties: |
+        sonar.exclusions=**/obj/**,**/*.dll
+        sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml
+        sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)/*.trx
+
   # Build
   - task: DotNetCoreCLI@2
     displayName: Build
@@ -137,7 +150,6 @@ jobs:
       versioningScheme: 'byEnvVar'
       versionEnvVar: BUILD.BUILDNUMBER
 
-  
   # Publish to Feed
   # allowPackageConflicts allows us to build the same version and not throw an error when trying to push, instead it just ingores the latest package unless the version changes
   # publishVstsFeed is fix-core-database Feed
