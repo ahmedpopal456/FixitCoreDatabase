@@ -105,14 +105,14 @@ jobs:
       version: '3.1.102'
   
   # Restore
-  - task: DotNetCoreCLI@2
+ - task: DotNetCoreCLI@2
     displayName: Restore
     inputs:
       command: restore
       projects: '$(buildProjects)'
-      feedsToUse: 'select'
       includeNuGetOrg: true
-      vstsFeed: '08d378fd-be72-4c80-9ce4-1a7c754efb98/4e00d135-54d5-4586-8976-a469a5b325bf'
+      feedsToUse: 'config'
+      nugetConfigPath: 'nuget.config'
 
   # Prepare Sonar Cloud Analysis 
   - task: SonarCloudPrepare@1
