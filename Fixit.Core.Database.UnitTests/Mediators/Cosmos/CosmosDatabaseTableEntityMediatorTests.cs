@@ -33,11 +33,8 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
       _feedIterator = new Mock<FeedIterator<DocumentBase>>();
       _feedResponse = new Mock<FeedResponse<DocumentBase>>();
 
-      // Create Seeders
-      var fakeDocumentBaseSeeder = fakeDtoSeederFactory.CreateFakeSeeder<DocumentBase>();
-
       // Create fake data objects
-      _fakeDocumentBases = fakeDocumentBaseSeeder.SeedFakeDtos();
+      _fakeDocumentBases = _fakeDtoSeederFactory.CreateSeederFactory(new DocumentBase());
 
       _cosmosDatabaseTableEntityMediator = new CosmosDatabaseTableEntityMediator(_cosmosDatabaseTableEntityAdapter.Object, _cosmosLinqQueryAdapter.Object);
     }
