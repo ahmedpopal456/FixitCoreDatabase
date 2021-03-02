@@ -358,19 +358,19 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
 
     [TestMethod]
     [DataRow(null, DisplayName = "Null_PartitionKey")]
-    public async Task UpdateItemAsync_PartitionKeyNullOrWhiteSpace_ThrowsException(string partitionKey)
+    public async Task UpsertItemAsync_PartitionKeyNullOrWhiteSpace_ThrowsException(string partitionKey)
     {
       // Arrange
       var cancellationToken = CancellationToken.None;
 
       // Act
       // Assert
-      await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => _cosmosDatabaseTableEntityMediator.UpdateItemAsync(_fakeDocumentBases.Last(), partitionKey, cancellationToken));
+      await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => _cosmosDatabaseTableEntityMediator.UpsertItemAsync(_fakeDocumentBases.Last(), partitionKey, cancellationToken));
     }
 
     [TestMethod]
     [DataRow("123", DisplayName = "Any_PartitionKey")]
-    public async Task UpdateItemAsync_UpdateItemException_ReturnsException(string partitionKey)
+    public async Task UpsertItemAsync_UpsertItemException_ReturnsException(string partitionKey)
     {
       // Arrange
       var cancellationToken = CancellationToken.None;
@@ -379,7 +379,7 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
                                        .Throws(new Exception());
 
       // Act
-      var actionResult = await _cosmosDatabaseTableEntityMediator.UpdateItemAsync(_fakeDocumentBases.Last(), partitionKey, cancellationToken);
+      var actionResult = await _cosmosDatabaseTableEntityMediator.UpsertItemAsync(_fakeDocumentBases.Last(), partitionKey, cancellationToken);
 
       // Assert
       Assert.IsNotNull(actionResult.OperationException);
@@ -388,7 +388,7 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
 
     [TestMethod]
     [DataRow("123", DisplayName = "Any_PartitionKey")]
-    public async Task UpdateItemAsync_UpdateItemFailure_ReturnsBadStatus(string partitionKey)
+    public async Task UpsertItemAsync_UpsertItemFailure_ReturnsBadStatus(string partitionKey)
     {
       // Arrange
       var cancellationToken = CancellationToken.None;
@@ -397,7 +397,7 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
                                        .ReturnsAsync(HttpStatusCode.BadRequest);
 
       // Act
-      var actionResult = await _cosmosDatabaseTableEntityMediator.UpdateItemAsync(_fakeDocumentBases.Last(), partitionKey, cancellationToken);
+      var actionResult = await _cosmosDatabaseTableEntityMediator.UpsertItemAsync(_fakeDocumentBases.Last(), partitionKey, cancellationToken);
 
       // Assert
       Assert.IsNotNull(actionResult.OperationMessage);
@@ -407,7 +407,7 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
 
     [TestMethod]
     [DataRow("123", DisplayName = "Any_PartitionKey")]
-    public async Task UpdateItemAsync_UpdateItemSuccess_ReturnsSuccess(string partitionKey)
+    public async Task UpsertItemAsync_UpsertItemSuccess_ReturnsSuccess(string partitionKey)
     {
       // Arrange
       var cancellationToken = CancellationToken.None;
@@ -416,7 +416,7 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
                                        .ReturnsAsync(HttpStatusCode.OK);
 
       // Act
-      var actionResult = await _cosmosDatabaseTableEntityMediator.UpdateItemAsync(_fakeDocumentBases.Last(), partitionKey, cancellationToken);
+      var actionResult = await _cosmosDatabaseTableEntityMediator.UpsertItemAsync(_fakeDocumentBases.Last(), partitionKey, cancellationToken);
 
       // Assert
       Assert.IsNotNull(actionResult.OperationMessage);
