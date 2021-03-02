@@ -1,14 +1,14 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Fixit.Core.Database.UnitTests.Adapters;
+﻿using Fixit.Core.Database.UnitTests.Adapters;
 using Fixit.Core.Database.Adapters;
-using Fixit.Core.DataContracts;
+using Fixit.Core.DataContracts.Seeders;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Fixit.Core.Database.UnitTests
 {
   public class TestBase
   {
-    public IFakeSeederFactory fakeDtoSeederFactory;
+    public IFakeSeederFactory _fakeDtoSeederFactory;
 
     protected Mock<IDatabaseAdapter> _cosmosDatabaseAdapter;
     protected Mock<IDatabaseTableAdapter> _cosmosDatabaseTableAdapter;
@@ -16,7 +16,7 @@ namespace Fixit.Core.Database.UnitTests
 
     public TestBase()
     {
-      fakeDtoSeederFactory = new FakeDtoSeederFactory();
+      _fakeDtoSeederFactory = new FakeDtoSeederFactory();
     }
 
     [AssemblyInitialize]

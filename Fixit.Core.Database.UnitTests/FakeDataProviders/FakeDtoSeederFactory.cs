@@ -1,20 +1,13 @@
-﻿using Fixit.Core.DataContracts;
+﻿using Fixit.Core.DataContracts.Seeders;
+using System.Collections.Generic;
 
 namespace Fixit.Core.Database.UnitTests.Adapters
 {
   public class FakeDtoSeederFactory : IFakeSeederFactory
   {
-    public IFakeSeederAdapter<T> CreateFakeSeeder<T>() where T : class
-    {
-      string type = typeof(T).Name;
-
-      switch (type)
-      {
-        case nameof(DocumentBase):
-          return (IFakeSeederAdapter<T>) new FakeDocumentBaseSeeder();
-        default:
-          return null;
-      }
-    }
-  }
+		public IList<T> CreateSeederFactory<T>(IFakeSeederAdapter<T> fakeSeederAdapter) where T : class
+		{
+			return fakeSeederAdapter.SeedFakeDtos();
+		}
+	}
 }
