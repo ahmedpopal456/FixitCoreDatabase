@@ -2,7 +2,7 @@
 using Moq;
 using Fixit.Core.Database.UnitTests.Adapters;
 using Fixit.Core.Database.Adapters;
-using Fixit.Core.DataContracts;
+using Fixit.Core.DataContracts.Seeders;
 
 namespace Fixit.Core.Database.UnitTests
 {
