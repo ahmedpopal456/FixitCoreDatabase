@@ -34,7 +34,7 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
       _feedResponse = new Mock<FeedResponse<DocumentBase>>();
 
       // Create fake data objects
-      _fakeDocumentBases = _fakeDtoSeederFactory.CreateSeederFactory(new DocumentBase());
+      _fakeDocumentBases = fakeDtoSeederFactory.CreateSeederFactory(new DocumentBase());
 
       _cosmosDatabaseTableEntityMediator = new CosmosDatabaseTableEntityMediator(_cosmosDatabaseTableEntityAdapter.Object, _cosmosLinqQueryAdapter.Object);
     }
