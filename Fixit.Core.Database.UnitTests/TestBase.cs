@@ -8,7 +8,7 @@ namespace Fixit.Core.Database.UnitTests
 {
   public class TestBase
   {
-    public IFakeSeederFactory fakeDtoSeederFactory;
+    public IFakeSeederFactory _fakeDtoSeederFactory;
 
     protected Mock<IDatabaseAdapter> _cosmosDatabaseAdapter;
     protected Mock<IDatabaseTableAdapter> _cosmosDatabaseTableAdapter;
@@ -16,7 +16,7 @@ namespace Fixit.Core.Database.UnitTests
 
     public TestBase()
     {
-      fakeDtoSeederFactory = new FakeDtoSeederFactory();
+      _fakeDtoSeederFactory = new FakeDtoSeederFactory();
     }
 
     [AssemblyInitialize]
