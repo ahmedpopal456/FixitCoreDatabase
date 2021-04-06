@@ -5,9 +5,9 @@ namespace Fixit.Core.Database.UnitTests.Adapters
 {
   public class FakeDtoSeederFactory : IFakeSeederFactory
   {
-    public IList<T> CreateSeederFactory<T>(IFakeSeederAdapter<T> fakeSeederAdapter) where T : class
-    {
-       return fakeSeederAdapter.SeedFakeDtos();
-    }
-  }
+		public IList<T> CreateSeederFactory<T>(IFakeSeederAdapter<T> fakeSeederAdapter) where T : class
+		{
+			return fakeSeederAdapter.SeedFakeDtos();
+		}
+	}
 }
