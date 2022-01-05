@@ -87,7 +87,7 @@ jobs:
         echo "##vso[build.updatebuildnumber]$(majorProductVersion).$(minorProductVersion).0-$(Build.BuildId)-$(branchPatchCount)"
       name: IfBranchBuildNameAndPatch
 
-- job: Build_Chat_Management_System
+- job: Build_Core_Database
   dependsOn:
     - Build_Branch_Version_Number
     - Build_PullRequest_Version_Number
