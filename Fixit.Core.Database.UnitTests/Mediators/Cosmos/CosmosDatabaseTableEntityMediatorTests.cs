@@ -12,6 +12,8 @@ using Fixit.Core.Database.Adapters.Cosmos;
 using Fixit.Core.Database.Mediators;
 using Fixit.Core.Database.Mediators.Cosmos.Internal;
 using Moq;
+using Fixit.Core.DataContracts;
+using Fixit.Core.Database.DataContracts.Documents;
 
 namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
 {
@@ -24,6 +26,7 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
     private Mock<FeedResponse<DocumentBase>> _feedResponse;
 
     private IEnumerable<DocumentBase> _fakeDocumentBases;
+    private IEnumerable<CreateDocumentDto<DocumentBase>> _fakeCreateDocumentDtos;
 
     [TestInitialize]
     public void TestInitialize()
@@ -34,8 +37,8 @@ namespace Fixit.Core.Database.UnitTests.Mediators.Cosmos
       _feedResponse = new Mock<FeedResponse<DocumentBase>>();
 
       // Create fake data objects
-      _fakeDocumentBases = _fakeDtoSeederFactory.CreateSeederFactory(new DocumentBase());
-
+      _fakeDocumentBases = new List<DocumentBase>() { new DocumentBase() };
+      _fakeCreateDocumentDtos = new List<CreateDocumentDto<DocumentBase>>() { new CreateDocumentDto<DocumentBase>() { Document = new DocumentBase() } };
       _cosmosDatabaseTableEntityMediator = new CosmosDatabaseTableEntityMediator(_cosmosDatabaseTableEntityAdapter.Object, _cosmosLinqQueryAdapter.Object);
     }
 

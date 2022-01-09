@@ -18,7 +18,7 @@ namespace Fixit.Core.Database.Mediators
     /// <param name="partitionKey"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<CreateDocumentDto<T>> CreateItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase;
+    Task<CreateDocumentDto<T>> CreateItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken) where T : class;
 
     /// <summary>
     /// Deletes the item with the specified itemId from the database
@@ -28,7 +28,7 @@ namespace Fixit.Core.Database.Mediators
     /// <param name="partitionKey"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<OperationStatus> DeleteItemAsync<T>(string itemId, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase;
+    Task<OperationStatus> DeleteItemAsync<T>(string itemId, string partitionKey, CancellationToken cancellationToken) where T : class;
 
     /// <summary>
     /// Retrieves the item with the specified itemId from the database
@@ -38,7 +38,7 @@ namespace Fixit.Core.Database.Mediators
     /// <param name="partitionKey"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<DocumentDto<T>> GetItemAsync<T>(string itemId, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase;
+    Task<DocumentDto<T>> GetItemAsync<T>(string itemId, string partitionKey, CancellationToken cancellationToken) where T : class;
 
     /// <summary>
     /// Retrieves items from the database using the specified query
@@ -49,7 +49,7 @@ namespace Fixit.Core.Database.Mediators
     /// <param name="queryRequestOptions"></param>
     /// <param name="predicate"></param>
     /// <returns></returns>
-    Task<(DocumentCollectionDto<T> DocumentCollection, string ContinuationToken)> GetItemQueryableAsync<T>(string continuationToken, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate, QueryRequestOptions queryRequestOptions = default) where T : DocumentBase;
+    Task<(DocumentCollectionDto<T> DocumentCollection, string ContinuationToken)> GetItemQueryableAsync<T>(string continuationToken, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate, QueryRequestOptions queryRequestOptions = default) where T : class;
 
     /// <summary>
     /// Retrieves items from the database using the specified query, by page
@@ -60,7 +60,7 @@ namespace Fixit.Core.Database.Mediators
     /// <param name="cancellationToken"></param>
     /// <param name="predicate"></param>
     /// <returns></returns>
-    Task<PagedDocumentCollectionDto<T>> GetItemQueryableByPageAsync<T>(int pageNumber, QueryRequestOptions queryRequestOptions, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate) where T : DocumentBase;
+    Task<PagedDocumentCollectionDto<T>> GetItemQueryableByPageAsync<T>(int pageNumber, QueryRequestOptions queryRequestOptions, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate) where T : class;
 
     /// <summary>
     /// Insert or update the specified item in the database
@@ -70,6 +70,6 @@ namespace Fixit.Core.Database.Mediators
     /// <param name="partitionKey"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task<OperationStatus> UpsertItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase;
+    Task<OperationStatus> UpsertItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken) where T : class;
   }
 }

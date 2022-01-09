@@ -12,6 +12,7 @@ using Fixit.Core.Database.DataContracts.Documents;
 using Microsoft.Azure.Cosmos;
 using Fixit.Core.Database.Helpers;
 using Fixit.Core.DataContracts.Decorators.Exceptions;
+using Fixit.Core.DataContracts.Decorators.Exceptions.Internals;
 
 [assembly: InternalsVisibleTo("Fixit.Core.Database.UnitTests")]
 namespace Fixit.Core.Database.Mediators.Cosmos.Internal
@@ -20,16 +21,16 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
   {
     private IDatabaseTableEntityAdapter _databaseTableEntityAdapter;
     private ICosmosLinqQueryAdapter _cosmosLinqQueryAdapter;
-    private OperationStatusExceptionDecorator _decorator;
+    private IExceptionDecorator _decorator;
 
     public CosmosDatabaseTableEntityMediator(IDatabaseTableEntityAdapter databaseTableEntityAdapter, ICosmosLinqQueryAdapter cosmosLinqQueryAdapter = null)
     {
       _databaseTableEntityAdapter = databaseTableEntityAdapter ?? throw new ArgumentNullException($"{nameof(CosmosDatabaseTableEntityMediator)} expects a value for {nameof(databaseTableEntityAdapter)}... null argument was provided");
       _cosmosLinqQueryAdapter = cosmosLinqQueryAdapter ?? new CosmosLinqQueryAdapter();
-      _decorator = new OperationStatusExceptionDecorator();
+      _decorator = new ExceptionDecorator();
     }
 
-    public async Task<CreateDocumentDto<T>> CreateItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase
+    public async Task<CreateDocumentDto<T>> CreateItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken) where T : class
     {
       cancellationToken.ThrowIfCancellationRequested();
 
@@ -39,17 +40,18 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
       }
 
       CreateDocumentDto<T> resultCreateDocument = new CreateDocumentDto<T>() { IsOperationSuccessful = true };
+      var document = item as DocumentBase;
 
-      resultCreateDocument = (CreateDocumentDto<T>)await _decorator.ExecuteOperationAsync(resultCreateDocument, async () => {
-        item.id ??= Guid.NewGuid().ToString();
-        item.EntityId = partitionKey;
+      await _decorator.ExecuteOperationAsync<CreateDocumentDto<T>>(true, async () => {
+        document.id ??= Guid.NewGuid().ToString();
+        document.EntityId = partitionKey;
 
         resultCreateDocument.Document = await _databaseTableEntityAdapter.CreateItemAsync(item, partitionKey, cancellationToken);
-      });
+      }, resultCreateDocument);
       return resultCreateDocument;
     }
 
-    public async Task<OperationStatus> DeleteItemAsync<T>(string itemId, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase
+    public async Task<OperationStatus> DeleteItemAsync<T>(string itemId, string partitionKey, CancellationToken cancellationToken) where T : class
     {
       cancellationToken.ThrowIfCancellationRequested();
 
@@ -64,16 +66,16 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
 
       OperationStatus resultStatus = new OperationStatus();
 
-      resultStatus = await _decorator.ExecuteOperationAsync(resultStatus, async () => {
+      await _decorator.ExecuteOperationAsync(true, async () => {
         HttpStatusCode statusCode = await _databaseTableEntityAdapter.DeleteItemAsync<T>(itemId, partitionKey, cancellationToken);
 
         resultStatus.IsOperationSuccessful = DatabaseValidators.IsSuccessStatusCode(statusCode);
         resultStatus.OperationMessage = statusCode.ToString();
-      });
+      }, resultStatus);
       return resultStatus;
     }
 
-    public async Task<DocumentDto<T>> GetItemAsync<T>(string itemId, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase
+    public async Task<DocumentDto<T>> GetItemAsync<T>(string itemId, string partitionKey, CancellationToken cancellationToken) where T : class
     {
       cancellationToken.ThrowIfCancellationRequested();
 
@@ -88,13 +90,13 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
 
       DocumentDto<T> document = new DocumentDto<T>() { IsOperationSuccessful = true };
 
-      document = (DocumentDto<T>)await _decorator.ExecuteOperationAsync(document, async () => {
+      await _decorator.ExecuteOperationAsync<DocumentDto<T>>(true, async () => {
         document.Document = await _databaseTableEntityAdapter.ReadItemAsync<T>(itemId, partitionKey, cancellationToken);
-      });
+      }, document);
       return document;
     }
 
-    public async Task<(DocumentCollectionDto<T> DocumentCollection, string ContinuationToken)> GetItemQueryableAsync<T>(string continuationToken, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate, QueryRequestOptions queryRequestOptions = null) where T : DocumentBase
+    public async Task<(DocumentCollectionDto<T> DocumentCollection, string ContinuationToken)> GetItemQueryableAsync<T>(string continuationToken, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate, QueryRequestOptions queryRequestOptions = null) where T : class
     {
       cancellationToken.ThrowIfCancellationRequested();
 
@@ -106,7 +108,7 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
       DocumentCollectionDto<T> resultDocumentCollection = new DocumentCollectionDto<T>() { IsOperationSuccessful = true };
       string token = "";
 
-      resultDocumentCollection = (DocumentCollectionDto<T>)await _decorator.ExecuteOperationAsync(resultDocumentCollection, async () => {
+      await _decorator.ExecuteOperationAsync<DocumentCollectionDto<T>> (true, async () => {
         if (string.IsNullOrWhiteSpace(continuationToken))
         {
           continuationToken = null;
@@ -123,11 +125,11 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
         {
           resultDocumentCollection.Results.Add(item);
         }
-      });
+      }, resultDocumentCollection);
       return (resultDocumentCollection, token);
     }
 
-    public async Task<PagedDocumentCollectionDto<T>> GetItemQueryableByPageAsync<T>(int pageNumber, QueryRequestOptions queryRequestOptions, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate) where T : DocumentBase
+    public async Task<PagedDocumentCollectionDto<T>> GetItemQueryableByPageAsync<T>(int pageNumber, QueryRequestOptions queryRequestOptions, CancellationToken cancellationToken, Expression<Func<T, bool>> predicate) where T : class
     {
       cancellationToken.ThrowIfCancellationRequested();
       
@@ -146,7 +148,7 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
 
       PagedDocumentCollectionDto<T> resultPagedDocumentCollection = new PagedDocumentCollectionDto<T>() { IsOperationSuccessful = true };
 
-      resultPagedDocumentCollection = (PagedDocumentCollectionDto<T>)await _decorator.ExecuteOperationAsync(resultPagedDocumentCollection, async () => {
+      await _decorator.ExecuteOperationAsync<PagedDocumentCollectionDto<T>>(true, async () => {
         resultPagedDocumentCollection.PageNumber = pageNumber;
         int skippedItems = queryRequestOptions.MaxItemCount.Value * (pageNumber - 1);
         FeedResponse<T> feedResponse = default;
@@ -168,11 +170,11 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
             }
           }
         }
-      });
+      }, resultPagedDocumentCollection);
       return resultPagedDocumentCollection;
     }
 
-    public async Task<OperationStatus> UpsertItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken) where T : DocumentBase
+    public async Task<OperationStatus> UpsertItemAsync<T>(T item, string partitionKey, CancellationToken cancellationToken) where T : class
     {
       cancellationToken.ThrowIfCancellationRequested();
 
@@ -182,16 +184,17 @@ namespace Fixit.Core.Database.Mediators.Cosmos.Internal
       }
 
       OperationStatus resultStatus = new OperationStatus();
+      var document = item as DocumentBase;
 
-      resultStatus = await _decorator.ExecuteOperationAsync(resultStatus, async () => {
-        item.id ??= Guid.NewGuid().ToString();
-        item.EntityId ??= partitionKey;
+      await _decorator.ExecuteOperationAsync<OperationStatus>(true, async () => {
+        document.id ??= Guid.NewGuid().ToString();
+        document.EntityId ??= partitionKey;
 
         HttpStatusCode statusCode = await _databaseTableEntityAdapter.UpsertItemAsync(item, partitionKey, cancellationToken);
 
         resultStatus.IsOperationSuccessful = DatabaseValidators.IsSuccessStatusCode(statusCode);
         resultStatus.OperationMessage = statusCode.ToString();
-      });
+      }, resultStatus);
       return resultStatus;
     }
   }
