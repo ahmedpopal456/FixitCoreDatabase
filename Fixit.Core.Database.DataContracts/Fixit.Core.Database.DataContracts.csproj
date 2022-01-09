@@ -5,10 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Fixit.Core.DataContracts" Version="1.0.0-pre-alpha339-118" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\FixitCoreStorage\Fixit.Core.Storage.DataContracts\Fixit.Core.Storage.DataContracts.csproj" />
+    <PackageReference Include="Fixit.Core.DataContracts" Version="1.0.121-alpha" />
   </ItemGroup>
 </Project>
